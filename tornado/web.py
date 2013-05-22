@@ -1798,9 +1798,11 @@ class StaticFileHandler(RequestHandler):
             data = file.read()
             if request_range:
                 # 206: Partial Content
-                self.set_status(206)
-                content_range = httputil.get_content_range(data, request_range)
-                self.set_header("Content-Range", content_range)
+                data_sliced = data[request_range]
+                if len(data_sliced) != len(data):
+                    self.set_status(206)
+                    content_range = httputil.get_content_range(data, request_range)
+                    self.set_header("Content-Range", content_range)
                 data = data[request_range]
             if include_body:
                 self.write(data)
